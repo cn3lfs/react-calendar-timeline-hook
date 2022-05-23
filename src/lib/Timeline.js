@@ -213,7 +213,7 @@ function ReactCalendarTimeline(props) {
   }
 
   const handleWheelZoom = (speed, xPosition, deltaY) => {
-    changeZoom(1.0 + (speed * deltaY) / 500, xPosition / state.width)
+    changeZoom(1.0 + (speed * deltaY) / 100, xPosition / state.width)
   }
 
   const changeZoom = (scale, offset = 0.5) => {
@@ -831,8 +831,8 @@ function ReactCalendarTimeline(props) {
                   scrollRef={scrollRef}
                   width={state.width}
                   height={state.height}
-                  onZoom={changeZoom}
-                  onWheelZoom={handleWheelZoom}
+                  onZoom={throttle(changeZoom, 100)}
+                  onWheelZoom={throttle(handleWheelZoom, 100)}
                   traditionalZoom={props.traditionalZoom}
                   onScroll={throttle(onScroll, 100)}
                   isInteractingWithItem={isInteractingWithItem}

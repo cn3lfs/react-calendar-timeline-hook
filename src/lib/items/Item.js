@@ -513,6 +513,8 @@ function Item(props) {
     }
   }
 
+  const timelineContext = useContext(TimelineContext)
+
   const getItemStyle = (nextProps = {}) => {
     const dimensions = props.dimensions
 
@@ -548,8 +550,6 @@ function Item(props) {
   if (typeof props.order === 'undefined' || props.order === null) {
     return null
   }
-
-  const timelineContext = useContext(TimelineContext)
 
   const itemContext = {
     dimensions: props.dimensions,
