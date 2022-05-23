@@ -1,46 +1,30 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import PropTypes from 'prop-types'
 import { TimelineStateConsumer } from '../timeline/TimelineStateContext'
 import CustomHeader from './CustomHeader'
 import { getNextUnit } from '../utility/calendar'
 import { defaultHeaderFormats } from '../default-config'
-import memoize from 'memoize-one'
 import { CustomDateHeader } from './CustomDateHeader'
 
-class DateHeader extends React.Component {
-  static propTypes = {
-    unit: PropTypes.string,
-    style: PropTypes.object,
-    className: PropTypes.string,
-    timelineUnit: PropTypes.string,
-    labelFormat: PropTypes.oneOfType([
-      PropTypes.func,
-      PropTypes.objectOf(PropTypes.objectOf(PropTypes.string)),
-      PropTypes.string
-    ]).isRequired,
-    intervalRenderer: PropTypes.func,
-    headerData: PropTypes.object,
-    height: PropTypes.number
-  }
-
-  getHeaderUnit = () => {
-    if (this.props.unit === 'primaryHeader') {
-      return getNextUnit(this.props.timelineUnit)
-    } else if (this.props.unit) {
-      return this.props.unit
+function DateHeader(props) {
+  const getHeaderUnit = () => {
+    if (props.unit === 'primaryHeader') {
+      return getNextUnit(props.timelineUnit)
+    } else if (props.unit) {
+      return props.unit
     }
-    return this.props.timelineUnit
+    return props.timelineUnit
   }
 
-  getRootStyle = memoize(style => {
+  const getRootStyle = useCallback((style) => {
     return {
       height: 30,
-      ...style
+      ...style,
     }
-  })
+  }, [])
 
-  getLabelFormat = (interval, unit, labelWidth) => {
-    const { labelFormat } = this.props
+  const getLabelFormat = (interval, unit, labelWidth) => {
+    const { labelFormat } = props
     if (typeof labelFormat === 'string') {
       const startTime = interval[0]
       return startTime.format(labelFormat)
@@ -51,7 +35,7 @@ class DateHeader extends React.Component {
     }
   }
 
-  getHeaderData = memoize(
+  const getHeaderData = useCallback(
     (
       intervalRenderer,
       style,
@@ -66,30 +50,44 @@ class DateHeader extends React.Component {
         className,
         getLabelFormat,
         unitProp,
-        headerData
+        headerData,
       }
-    }
+    },
+    []
   )
 
-  render() {
-    const unit = this.getHeaderUnit()
-    const { headerData, height } = this.props
-    return (
-      <CustomHeader
-        unit={unit}
-        height={height}
-        headerData={this.getHeaderData(
-          this.props.intervalRenderer,
-          this.getRootStyle(this.props.style),
-          this.props.className,
-          this.getLabelFormat,
-          this.props.unit,
-          this.props.headerData
-        )}
-        children={CustomDateHeader}
-      />
-    )
-  }
+  const unit = getHeaderUnit()
+  const { headerData, height } = props
+  return (
+    <CustomHeader
+      unit={unit}
+      height={height}
+      headerData={getHeaderData(
+        props.intervalRenderer,
+        getRootStyle(props.style),
+        props.className,
+        getLabelFormat,
+        props.unit,
+        props.headerData
+      )}
+      children={CustomDateHeader}
+    />
+  )
+}
+
+DateHeader.propTypes = {
+  unit: PropTypes.string,
+  style: PropTypes.object,
+  className: PropTypes.string,
+  timelineUnit: PropTypes.string,
+  labelFormat: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.objectOf(PropTypes.objectOf(PropTypes.string)),
+    PropTypes.string,
+  ]).isRequired,
+  intervalRenderer: PropTypes.func,
+  headerData: PropTypes.object,
+  height: PropTypes.number,
 }
 
 const DateHeaderWrapper = ({
@@ -99,7 +97,7 @@ const DateHeaderWrapper = ({
   className,
   intervalRenderer,
   headerData,
-  height
+  height,
 }) => (
   <TimelineStateConsumer>
     {({ getTimelineState }) => {
@@ -127,15 +125,15 @@ DateHeaderWrapper.propTypes = {
   labelFormat: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.objectOf(PropTypes.objectOf(PropTypes.string)),
-    PropTypes.string
+    PropTypes.string,
   ]),
   intervalRenderer: PropTypes.func,
   headerData: PropTypes.object,
-  height: PropTypes.number
+  height: PropTypes.number,
 }
 
 DateHeaderWrapper.defaultProps = {
-  labelFormat: formatLabel
+  labelFormat: formatLabel,
 }
 
 function formatLabel(

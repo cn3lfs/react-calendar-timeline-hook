@@ -3,9 +3,10 @@ import PropTypes from 'prop-types'
 
 export const defaultItemRenderer = ({
   item,
+  timelineContext,
   itemContext,
   getItemProps,
-  getResizeProps
+  getResizeProps,
 }) => {
   const { left: leftResizeProps, right: rightResizeProps } = getResizeProps()
   return (
@@ -30,5 +31,5 @@ defaultItemRenderer.propTypes = {
   item: PropTypes.any,
   itemContext: PropTypes.any,
   getItemProps: PropTypes.any,
-  getResizeProps: PropTypes.any
+  getResizeProps: PropTypes.any,
 }

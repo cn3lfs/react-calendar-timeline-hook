@@ -3,41 +3,39 @@ import PropTypes from 'prop-types'
 import { TimelineHeadersConsumer } from './HeadersContext'
 import { LEFT_VARIANT, RIGHT_VARIANT } from './constants'
 
-class SidebarHeader extends React.PureComponent {
-  static propTypes = {
-    children: PropTypes.func.isRequired,
-    rightSidebarWidth: PropTypes.number,
-    leftSidebarWidth: PropTypes.number.isRequired,
-    variant: PropTypes.string,
-    headerData: PropTypes.object
-  }
-
-  getRootProps = (props = {}) => {
-    const { style } = props
+function SidebarHeader(props) {
+  const getRootProps = (nextProps = {}) => {
+    const { style } = nextProps
     const width =
-      this.props.variant === RIGHT_VARIANT
-        ? this.props.rightSidebarWidth
-        : this.props.leftSidebarWidth
+      props.variant === RIGHT_VARIANT
+        ? props.rightSidebarWidth
+        : props.leftSidebarWidth
     return {
       style: {
         ...style,
         width,
-      }
+      },
     }
   }
 
-  getStateAndHelpers = () => {
+  const getStateAndHelpers = () => {
     return {
-      getRootProps: this.getRootProps,
-      data: this.props.headerData,
+      getRootProps: getRootProps,
+      data: props.headerData,
     }
   }
 
-  render() {
-    const props = this.getStateAndHelpers()
-    const Renderer = this.props.children
-    return <Renderer {...props}/>
-  }
+  const nextProps = getStateAndHelpers()
+  const Renderer = props.children
+  return <Renderer {...nextProps} />
+}
+
+SidebarHeader.propTypes = {
+  children: PropTypes.func.isRequired,
+  rightSidebarWidth: PropTypes.number,
+  leftSidebarWidth: PropTypes.number.isRequired,
+  variant: PropTypes.string,
+  headerData: PropTypes.object,
 }
 
 const SidebarWrapper = ({ children, variant, headerData }) => (
@@ -59,14 +57,16 @@ const SidebarWrapper = ({ children, variant, headerData }) => (
 SidebarWrapper.propTypes = {
   children: PropTypes.func.isRequired,
   variant: PropTypes.string,
-  headerData: PropTypes.object
+  headerData: PropTypes.object,
 }
 
 SidebarWrapper.defaultProps = {
   variant: LEFT_VARIANT,
-  children: ({ getRootProps }) => <div data-testid="sidebarHeader" {...getRootProps()} />
+  children: ({ getRootProps }) => (
+    <div data-testid="sidebarHeader" {...getRootProps()} />
+  ),
 }
 
-SidebarWrapper.secretKey = "SidebarHeader"
+SidebarWrapper.secretKey = 'SidebarHeader'
 
 export default SidebarWrapper

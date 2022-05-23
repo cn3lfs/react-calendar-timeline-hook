@@ -1,40 +1,42 @@
-import React, { Component } from 'react'
+import React, { useRef } from 'react'
 import PropTypes from 'prop-types'
 
-class PreventClickOnDrag extends Component {
-  static propTypes = {
-    children: PropTypes.element.isRequired,
-    onClick: PropTypes.func.isRequired,
-    clickTolerance: PropTypes.number.isRequired
+function PreventClickOnDrag(props) {
+  const originClickX = useRef(null)
+  const cancelClick = useRef(false)
+
+  const handleMouseDown = (evt) => {
+    originClickX.current = evt.clientX
   }
 
-  handleMouseDown = evt => {
-    this.originClickX = evt.clientX
-  }
-
-  handleMouseUp = evt => {
-    if (Math.abs(this.originClickX - evt.clientX) > this.props.clickTolerance) {
-      this.cancelClick = true
+  const handleMouseUp = (evt) => {
+    if (Math.abs(originClickX.current - evt.clientX) > props.clickTolerance) {
+      cancelClick.current = true
     }
   }
 
-  handleClick = evt => {
-    if (!this.cancelClick) {
-      this.props.onClick(evt)
+  const handleClick = (evt) => {
+    if (!cancelClick.current) {
+      props.onClick(evt)
     }
 
-    this.cancelClick = false
-    this.originClickX = null
+    cancelClick.current = false
+    originClickX.current = null
   }
 
-  render() {
-    const childElement = React.Children.only(this.props.children)
-    return React.cloneElement(childElement, {
-      onMouseDown: this.handleMouseDown,
-      onMouseUp: this.handleMouseUp,
-      onClick: this.handleClick
-    })
-  }
+  const childElement = React.Children.only(props.children)
+
+  return React.cloneElement(childElement, {
+    onMouseDown: handleMouseDown,
+    onMouseUp: handleMouseUp,
+    onClick: handleClick,
+  })
+}
+
+PreventClickOnDrag.propTypes = {
+  children: PropTypes.element.isRequired,
+  onClick: PropTypes.func.isRequired,
+  clickTolerance: PropTypes.number.isRequired,
 }
 
 export default PreventClickOnDrag

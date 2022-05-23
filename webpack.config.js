@@ -3,7 +3,7 @@ const path = require('path')
 const port = process.env.PORT || 8888
 
 const config = {
-  devtool: 'cheap-eval-source-map',
+  devtool: 'eval-cheap-source-map',
   context: path.join(__dirname, './demo'),
   entry: {
     // vendor: ['react', 'react-dom', 'faker', 'interactjs', 'moment'],
@@ -21,15 +21,19 @@ const config = {
   },
   mode: 'development',
   module: {
-    rules: [
-      {
+    rules: [{
         test: /\.scss$/,
-        loader: 'style-loader!css-loader!sass-loader'
+        use: [
+          // apply multiple loaders and options instead
+          "style-loader",
+          "css-loader",
+          "sass-loader",
+        ],
       },
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
-        loaders: ['babel-loader']
+        loader: "babel-loader",
       }
     ]
   },
@@ -46,7 +50,7 @@ const config = {
     }
   },
   devServer: {
-    contentBase: './demo',
+    static: './demo',
     port
   }
 }

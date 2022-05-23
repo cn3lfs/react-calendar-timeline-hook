@@ -64,7 +64,7 @@ export function iterateTimes(start, end, unit, timeSteps, callback) {
 
   if (timeSteps[unit] && timeSteps[unit] > 1) {
     let value = time.get(unit)
-    time.set(unit, value - value % timeSteps[unit])
+    time.set(unit, value - (value % timeSteps[unit]))
   }
 
   while (time.valueOf() < end) {
@@ -102,7 +102,7 @@ export function getMinUnit(zoom, width, timeSteps) {
     hour: 60,
     day: 24,
     month: 30,
-    year: 12
+    year: 12,
   }
 
   let minUnit = 'year'
@@ -110,7 +110,7 @@ export function getMinUnit(zoom, width, timeSteps) {
   // this timespan is in ms initially
   let nextTimeSpanInUnitContext = zoom
 
-  Object.keys(timeDividers).some(unit => {
+  Object.keys(timeDividers).some((unit) => {
     // converts previous time span to current unit
     // (e.g. milliseconds to seconds, seconds to minutes, etc)
     nextTimeSpanInUnitContext = nextTimeSpanInUnitContext / timeDividers[unit]
@@ -149,7 +149,7 @@ export function getNextUnit(unit) {
     hour: 'day',
     day: 'month',
     month: 'year',
-    year: 'year'
+    year: 'year',
   }
   if (!nextUnits[unit]) {
     throw new Error(`unit ${unit} in not acceptable`)
@@ -175,7 +175,7 @@ export function calculateInteractionNewTimes({
   isDragging,
   isResizing,
   resizingEdge,
-  resizeTime
+  resizeTime,
 }) {
   const originalItemRange = itemTimeEnd - itemTimeStart
   const itemStart =
@@ -184,7 +184,7 @@ export function calculateInteractionNewTimes({
     isResizing && resizingEdge === 'right' ? resizeTime : itemTimeEnd
   return [
     isDragging ? dragTime : itemStart,
-    isDragging ? dragTime + originalItemRange : itemEnd
+    isDragging ? dragTime + originalItemRange : itemEnd,
   ]
 }
 
@@ -193,7 +193,7 @@ export function calculateDimensions({
   itemTimeEnd,
   canvasTimeStart,
   canvasTimeEnd,
-  canvasWidth
+  canvasWidth,
 }) {
   const itemTimeRange = itemTimeEnd - itemTimeStart
 
@@ -219,7 +219,7 @@ export function calculateDimensions({
     left: left,
     width: Math.max(itemWidth, 3),
     collisionLeft: itemTimeStart,
-    collisionWidth: itemTimeRange
+    collisionWidth: itemTimeRange,
   }
 
   return dimensions
@@ -257,7 +257,7 @@ export function getGroupedItems(items, groupOrders) {
     groupedItems[i] = {
       index: groupOrder.index,
       group: groupOrder.group,
-      items: []
+      items: [],
     }
   }
 
@@ -277,7 +277,7 @@ export function getGroupedItems(items, groupOrders) {
 export function getVisibleItems(items, canvasTimeStart, canvasTimeEnd, keys) {
   const { itemTimeStartKey, itemTimeEndKey } = keys
 
-  return items.filter(item => {
+  return items.filter((item) => {
     return (
       _get(item, itemTimeStartKey) <= canvasTimeEnd &&
       _get(item, itemTimeEndKey) >= canvasTimeStart
@@ -339,7 +339,10 @@ export function groupStack(
         item.dimensions.top = collidingItem.dimensions.top + lineHeight
         curHeight = Math.max(
           curHeight,
-          item.dimensions.top + item.dimensions.height + verticalMargin - groupTop
+          item.dimensions.top +
+            item.dimensions.height +
+            verticalMargin -
+            groupTop
         )
       }
     } while (collidingItem)
@@ -347,9 +350,8 @@ export function groupStack(
   return {
     groupHeight: curHeight,
     verticalMargin,
-    itemTop: item.dimensions.top
+    itemTop: item.dimensions.top,
   }
-
 }
 
 // Calculate the position of this item for a group that is not being stacked
@@ -402,22 +404,27 @@ export function stackAll(itemsDimensions, groupOrders, lineHeight, stackItems) {
       groupHeights.push(Math.max(groupHeight, lineHeight))
     }
   }
-  
+
   return {
     height: sum(groupHeights),
     groupHeights,
-    groupTops
+    groupTops,
   }
 }
 
 /**
- * 
- * @param {*} itemsDimensions 
- * @param {*} isGroupStacked 
- * @param {*} lineHeight 
- * @param {*} groupTop 
+ *
+ * @param {*} itemsDimensions
+ * @param {*} isGroupStacked
+ * @param {*} lineHeight
+ * @param {*} groupTop
  */
-export function stackGroup(itemsDimensions, isGroupStacked, lineHeight, groupTop) {
+export function stackGroup(
+  itemsDimensions,
+  isGroupStacked,
+  lineHeight,
+  groupTop
+) {
   var groupHeight = 0
   var verticalMargin = 0
   // Find positions for each item in group
@@ -433,7 +440,12 @@ export function stackGroup(itemsDimensions, isGroupStacked, lineHeight, groupTop
         itemIndex
       )
     } else {
-      r = groupNoStack(lineHeight, itemsDimensions[itemIndex], groupHeight, groupTop)
+      r = groupNoStack(
+        lineHeight,
+        itemsDimensions[itemIndex],
+        groupHeight,
+        groupTop
+      )
     }
     groupHeight = r.groupHeight
     verticalMargin = r.verticalMargin
@@ -483,7 +495,7 @@ export function stackTimelineItems(
     canvasTimeEnd,
     keys
   )
-  const visibleItemsWithInteraction = visibleItems.map(item =>
+  const visibleItemsWithInteraction = visibleItems.map((item) =>
     getItemWithInteractions({
       item,
       keys,
@@ -493,7 +505,7 @@ export function stackTimelineItems(
       resizingEdge,
       resizeTime,
       groups,
-      newGroupOrder
+      newGroupOrder,
     })
   )
 
@@ -503,14 +515,14 @@ export function stackTimelineItems(
       dimensionItems: [],
       height: 0,
       groupHeights: [],
-      groupTops: []
+      groupTops: [],
     }
   }
 
   // Get the order of groups based on their id key
   const groupOrders = getGroupOrders(groups, keys)
   let dimensionItems = visibleItemsWithInteraction
-    .map(item =>
+    .map((item) =>
       getItemDimensions({
         item,
         keys,
@@ -519,10 +531,10 @@ export function stackTimelineItems(
         canvasWidth,
         groupOrders,
         lineHeight,
-        itemHeightRatio
+        itemHeightRatio,
       })
     )
-    .filter(item => !!item)
+    .filter((item) => !!item)
   // Get a new array of groupOrders holding the stacked items
   const { height, groupHeights, groupTops } = stackAll(
     dimensionItems,
@@ -561,7 +573,7 @@ export function getItemDimensions({
   canvasWidth,
   groupOrders,
   lineHeight,
-  itemHeightRatio
+  itemHeightRatio,
 }) {
   const itemId = _get(item, keys.itemIdKey)
   let dimension = calculateDimensions({
@@ -569,7 +581,7 @@ export function getItemDimensions({
     itemTimeEnd: _get(item, keys.itemTimeEndKey),
     canvasTimeStart,
     canvasTimeEnd,
-    canvasWidth
+    canvasWidth,
   })
   if (dimension) {
     dimension.top = null
@@ -578,7 +590,7 @@ export function getItemDimensions({
     dimension.height = lineHeight * itemHeightRatio
     return {
       id: itemId,
-      dimensions: dimension
+      dimensions: dimension,
     }
   }
 }
@@ -605,7 +617,7 @@ export function getItemWithInteractions({
   resizingEdge,
   resizeTime,
   groups,
-  newGroupOrder
+  newGroupOrder,
 }) {
   if (!resizingItem && !draggingItem) return item
   const itemId = _get(item, keys.itemIdKey)
@@ -618,7 +630,7 @@ export function getItemWithInteractions({
     isResizing,
     dragTime,
     resizingEdge,
-    resizeTime
+    resizeTime,
   })
   const newItem = {
     ...item,
@@ -626,7 +638,7 @@ export function getItemWithInteractions({
     [keys.itemTimeEndKey]: itemTimeEnd,
     [keys.itemGroupKey]: isDragging
       ? _get(groups[newGroupOrder], keys.groupIdKey)
-      : _get(item, keys.itemGroupKey)
+      : _get(item, keys.itemGroupKey),
   }
   return newItem
 }
@@ -689,7 +701,7 @@ export function calculateScrollCanvas(
     newState.canvasTimeEnd = canvasTimeEnd
     const mergedState = {
       ...state,
-      ...newState
+      ...newState,
     }
 
     const canvasWidth = getCanvasWidth(mergedState.width)
@@ -716,5 +728,6 @@ export function calculateScrollCanvas(
       )
     )
   }
+  console.log(newState)
   return newState
 }

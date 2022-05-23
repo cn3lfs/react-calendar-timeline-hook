@@ -1,47 +1,51 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { TimelineMarkersConsumer } from '../TimelineMarkersContext'
 import { TimelineMarkerType } from '../markerType'
 
-class CustomMarker extends React.Component {
-  static propTypes = {
-    subscribeMarker: PropTypes.func.isRequired,
-    updateMarker: PropTypes.func.isRequired,
-    children: PropTypes.func,
-    date: PropTypes.number.isRequired
-  }
+function CustomMarker(props) {
+  const unsubscribeRef = useRef(null)
+  const markerRef = useRef(null)
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.date !== this.props.date && this.getMarker) {
-      const marker = this.getMarker()
-      this.props.updateMarker({ ...marker, date: this.props.date })
-    }
-  }
-
-  componentDidMount() {
-    const { unsubscribe, getMarker } = this.props.subscribeMarker({
+  useEffect(() => {
+    const { unsubscribe, getMarker } = props.subscribeMarker({
       type: TimelineMarkerType.Custom,
-      renderer: this.props.children,
-      date: this.props.date
+      renderer: props.children,
+      date: props.date,
     })
-    this.unsubscribe = unsubscribe
-    this.getMarker = getMarker
-  }
+    unsubscribeRef.current = unsubscribe
+    markerRef.current = getMarker
 
-  componentWillUnmount() {
-    if (this.unsubscribe != null) {
-      this.unsubscribe()
-      this.unsubscribe = null
+    return () => {
+      if (unsubscribeRef.current != null) {
+        unsubscribeRef.current()
+        unsubscribeRef.current = null
+      }
     }
-  }
+  }, [])
 
-  render() {
-    return null
-  }
+  useEffect(() => {
+    if (markerRef.current) {
+      const marker = markerRef.current()
+      props.updateMarker({
+        ...marker,
+        date: props.date,
+      })
+    }
+  }, [props.date])
+
+  return null
+}
+
+CustomMarker.propTypes = {
+  subscribeMarker: PropTypes.func.isRequired,
+  updateMarker: PropTypes.func.isRequired,
+  children: PropTypes.func,
+  date: PropTypes.number.isRequired,
 }
 
 // TODO: turn into HOC?
-const CustomMarkerWrapper = props => {
+const CustomMarkerWrapper = (props) => {
   return (
     <TimelineMarkersConsumer>
       {({ subscribeMarker, updateMarker }) => (

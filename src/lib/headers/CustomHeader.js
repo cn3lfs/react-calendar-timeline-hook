@@ -1,108 +1,18 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { TimelineHeadersConsumer } from './HeadersContext'
 import { TimelineStateConsumer } from '../timeline/TimelineStateContext'
 import { iterateTimes, calculateXPositionForTime } from '../utility/calendar'
 
-export class CustomHeader extends React.Component {
-  static propTypes = {
-    //component props
-    children: PropTypes.func.isRequired,
-    unit: PropTypes.string.isRequired,
-    //Timeline context
-    timeSteps: PropTypes.object.isRequired,
-    visibleTimeStart: PropTypes.number.isRequired,
-    visibleTimeEnd: PropTypes.number.isRequired,
-    canvasTimeStart: PropTypes.number.isRequired,
-    canvasTimeEnd: PropTypes.number.isRequired,
-    canvasWidth: PropTypes.number.isRequired,
-    showPeriod: PropTypes.func.isRequired,
-    headerData: PropTypes.object,
-    getLeftOffsetFromDate: PropTypes.func.isRequired,
-    height: PropTypes.number.isRequired,
-  }
-  constructor(props) {
-    super(props)
-    const {
-      canvasTimeStart,
-      canvasTimeEnd,
-      canvasWidth,
-      unit,
-      timeSteps,
-      showPeriod,
-      getLeftOffsetFromDate
-    } = props
+export function CustomHeader(props) {
+  const [intervals, setIntervals] = useState([])
 
-    const intervals = this.getHeaderIntervals({
-      canvasTimeStart,
-      canvasTimeEnd,
-      canvasWidth,
-      unit,
-      timeSteps,
-      showPeriod,
-      getLeftOffsetFromDate
-    })
-
-    this.state = {
-      intervals
-    }
-  }
-
-  shouldComponentUpdate(nextProps) {
-    if (
-      nextProps.canvasTimeStart !== this.props.canvasTimeStart ||
-      nextProps.canvasTimeEnd !== this.props.canvasTimeEnd ||
-      nextProps.canvasWidth !== this.props.canvasWidth ||
-      nextProps.unit !== this.props.unit ||
-      nextProps.timeSteps !== this.props.timeSteps ||
-      nextProps.showPeriod !== this.props.showPeriod ||
-      nextProps.children !== this.props.children ||
-      nextProps.headerData !== this.props.headerData
-    ) {
-      return true
-    }
-    return false
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.canvasTimeStart !== this.props.canvasTimeStart ||
-      nextProps.canvasTimeEnd !== this.props.canvasTimeEnd ||
-      nextProps.canvasWidth !== this.props.canvasWidth ||
-      nextProps.unit !== this.props.unit ||
-      nextProps.timeSteps !== this.props.timeSteps ||
-      nextProps.showPeriod !== this.props.showPeriod
-    ) {
-      const {
-        canvasTimeStart,
-        canvasTimeEnd,
-        canvasWidth,
-        unit,
-        timeSteps,
-        showPeriod,
-        getLeftOffsetFromDate
-      } = nextProps
-
-      const intervals = this.getHeaderIntervals({
-        canvasTimeStart,
-        canvasTimeEnd,
-        canvasWidth,
-        unit,
-        timeSteps,
-        showPeriod,
-        getLeftOffsetFromDate
-      })
-
-      this.setState({ intervals })
-    }
-  }
-
-  getHeaderIntervals = ({
+  const getHeaderIntervals = ({
     canvasTimeStart,
     canvasTimeEnd,
     unit,
     timeSteps,
-    getLeftOffsetFromDate
+    getLeftOffsetFromDate,
   }) => {
     const intervals = []
     iterateTimes(
@@ -118,52 +28,52 @@ export class CustomHeader extends React.Component {
           startTime,
           endTime,
           labelWidth: width,
-          left
+          left,
         })
       }
     )
     return intervals
   }
 
-  getRootProps = (props = {}) => {
-    const { style } = props
+  const getRootProps = (nextProps = {}) => {
+    const { style } = nextProps
     return {
       style: Object.assign({}, style ? style : {}, {
         position: 'relative',
-        width: this.props.canvasWidth,
-        height: this.props.height,
-      })
+        width: props.canvasWidth,
+        height: props.height,
+      }),
     }
   }
 
-  getIntervalProps = (props = {}) => {
-    const { interval, style } = props
+  const getIntervalProps = (nextProps = {}) => {
+    const { interval, style } = nextProps
     if (!interval)
       throw new Error('you should provide interval to the prop getter')
     const { startTime, labelWidth, left } = interval
     return {
-      style: this.getIntervalStyle({
+      style: getIntervalStyle({
         style,
         startTime,
         labelWidth,
-        canvasTimeStart: this.props.canvasTimeStart,
-        unit: this.props.unit,
-        left
+        canvasTimeStart: props.canvasTimeStart,
+        unit: props.unit,
+        left,
       }),
-      key: `label-${startTime.valueOf()}`
+      key: `label-${startTime.valueOf()}`,
     }
   }
 
-  getIntervalStyle = ({ left, labelWidth, style }) => {
+  const getIntervalStyle = ({ left, labelWidth, style }) => {
     return {
       ...style,
       left,
       width: labelWidth,
-      position: 'absolute'
+      position: 'absolute',
     }
   }
 
-  getStateAndHelpers = () => {
+  const getStateAndHelpers = () => {
     const {
       canvasTimeStart,
       canvasTimeEnd,
@@ -173,7 +83,7 @@ export class CustomHeader extends React.Component {
       visibleTimeStart,
       visibleTimeEnd,
       headerData,
-    } = this.props
+    } = props
     //TODO: only evaluate on changing params
     return {
       timelineContext: {
@@ -181,24 +91,74 @@ export class CustomHeader extends React.Component {
         visibleTimeStart,
         visibleTimeEnd,
         canvasTimeStart,
-        canvasTimeEnd
+        canvasTimeEnd,
       },
       headerContext: {
         unit,
-        intervals: this.state.intervals
+        intervals: intervals,
       },
-      getRootProps: this.getRootProps,
-      getIntervalProps: this.getIntervalProps,
+      getRootProps: getRootProps,
+      getIntervalProps: getIntervalProps,
       showPeriod,
       data: headerData,
     }
   }
 
-  render() {
-    const props = this.getStateAndHelpers()
-    const Renderer = this.props.children
-    return <Renderer {...props}/>
+  const updateIntervals = () => {
+    const {
+      canvasTimeStart,
+      canvasTimeEnd,
+      canvasWidth,
+      unit,
+      timeSteps,
+      showPeriod,
+      getLeftOffsetFromDate,
+    } = props
+
+    const intervals = getHeaderIntervals({
+      canvasTimeStart,
+      canvasTimeEnd,
+      canvasWidth,
+      unit,
+      timeSteps,
+      showPeriod,
+      getLeftOffsetFromDate,
+    })
+
+    setIntervals(intervals)
   }
+
+  useEffect(() => {
+    updateIntervals()
+  }, [
+    props.canvasTimeStart,
+    props.canvasTimeEnd,
+    props.canvasWidth,
+    props.unit,
+    props.timeSteps,
+    props.showPeriod,
+  ])
+
+  const nextProps = getStateAndHelpers()
+  const Renderer = props.children
+  return <Renderer {...nextProps} />
+}
+
+CustomHeader.propTypes = {
+  //component props
+  children: PropTypes.func.isRequired,
+  unit: PropTypes.string.isRequired,
+  //Timeline context
+  timeSteps: PropTypes.object.isRequired,
+  visibleTimeStart: PropTypes.number.isRequired,
+  visibleTimeEnd: PropTypes.number.isRequired,
+  canvasTimeStart: PropTypes.number.isRequired,
+  canvasTimeEnd: PropTypes.number.isRequired,
+  canvasWidth: PropTypes.number.isRequired,
+  showPeriod: PropTypes.func.isRequired,
+  headerData: PropTypes.object,
+  getLeftOffsetFromDate: PropTypes.func.isRequired,
+  height: PropTypes.number.isRequired,
 }
 
 const CustomHeaderWrapper = ({ children, unit, headerData, height }) => (

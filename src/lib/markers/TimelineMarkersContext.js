@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { createContext, useState } from 'react'
+
 import PropTypes from 'prop-types'
-import createReactContext from 'create-react-context'
 import { noop } from '../utility/generic'
 
 const defaultContextState = {
@@ -9,10 +9,10 @@ const defaultContextState = {
     // eslint-disable-next-line
     console.warn('default subscribe marker used')
     return noop
-  }
+  },
 }
 
-const { Consumer, Provider } = createReactContext(defaultContextState)
+const { Consumer, Provider } = createContext(defaultContextState)
 
 // REVIEW: is this the best way to manage ids?
 let _id = 0
@@ -21,62 +21,65 @@ const createId = () => {
   return _id + 1
 }
 
-export class TimelineMarkersProvider extends React.Component {
-  static propTypes = {
-    children: PropTypes.element.isRequired
-  }
-
-  handleSubscribeToMarker = newMarker => {
+export function TimelineMarkersProvider(props) {
+  const handleSubscribeToMarker = (newMarker) => {
     newMarker = {
       ...newMarker,
       // REVIEW: in the event that we accept id to be passed to the Marker components, this line would override those
-      id: createId()
+      id: createId(),
     }
 
-    this.setState(state => {
+    setState((state) => {
       return {
-        markers: [...state.markers, newMarker]
+        ...state,
+        markers: [...state.markers, newMarker],
       }
     })
     return {
       unsubscribe: () => {
-        this.setState(state => {
+        setState((state) => {
           return {
-            markers: state.markers.filter(marker => marker.id !== newMarker.id)
+            ...state,
+            markers: state.markers.filter(
+              (marker) => marker.id !== newMarker.id
+            ),
           }
         })
       },
       getMarker: () => {
         return newMarker
-      }
+      },
     }
   }
 
-  handleUpdateMarker = updateMarker => {
-    const markerIndex = this.state.markers.findIndex(
-      marker => marker.id === updateMarker.id
+  const handleUpdateMarker = (updateMarker) => {
+    const markerIndex = state.markers.findIndex(
+      (marker) => marker.id === updateMarker.id
     )
     if (markerIndex < 0) return
-    this.setState(state => {
+    setState((state) => {
       return {
+        ...state,
         markers: [
           ...state.markers.slice(0, markerIndex),
           updateMarker,
-          ...state.markers.slice(markerIndex + 1)
-        ]
+          ...state.markers.slice(markerIndex + 1),
+        ],
       }
     })
   }
 
-  state = {
+  const [state, setState] = useState({
     markers: [],
-    subscribeMarker: this.handleSubscribeToMarker,
-    updateMarker: this.handleUpdateMarker
-  }
+    subscribeMarker: handleSubscribeToMarker,
+    updateMarker: handleUpdateMarker,
+  })
 
-  render() {
-    return <Provider value={this.state}>{this.props.children}</Provider>
-  }
+  return <Provider value={state}>{props.children}</Provider>
+}
+
+TimelineMarkersProvider.propTypes = {
+  children: PropTypes.element.isRequired,
 }
 
 export const TimelineMarkersConsumer = Consumer

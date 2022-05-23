@@ -19,11 +19,11 @@ export default function (groupCount = 30, itemCount = 1000, daysInPast = 30) {
   for (let i = 0; i < itemCount; i++) {
     const startDate = faker.date.recent(daysInPast).valueOf() + (daysInPast * 0.3) * 86400 * 1000
     const startValue = Math.floor(moment(startDate).valueOf() / 10000000) * 10000000
-    const endValue = moment(startDate + faker.random.number({min: 2, max: 20}) * 15 * 60 * 1000).valueOf()
+    const endValue = moment(startDate + faker.datatype.number({min: 2, max: 20}) * 15 * 60 * 1000).valueOf()
 
     items.push({
       id: i + '',
-      group: faker.random.number({ min: 1, max: groups.length }) + '',
+      group: faker.datatype.number({ min: 1, max: groups.length }) + '',
       title: faker.hacker.phrase(),
       start: startValue,
       end: endValue,

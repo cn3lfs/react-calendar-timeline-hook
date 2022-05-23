@@ -1,58 +1,63 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import { TimelineMarkersConsumer } from '../TimelineMarkersContext'
 import { TimelineMarkerType } from '../markerType'
 
-class TodayMarker extends React.Component {
-  static propTypes = {
-    subscribeMarker: PropTypes.func.isRequired,
-    updateMarker: PropTypes.func.isRequired,
-    interval: PropTypes.number,
-    children: PropTypes.func
-  }
+function TodayMarker(props) {
+  const unsubscribeRef = useRef(null)
+  const markerRef = useRef(null)
 
-  static defaultProps = {
-    interval: 1000 * 10 // default to ten seconds
-  }
-
-  componentDidMount() {
-     const { unsubscribe, getMarker } = this.props.subscribeMarker({
+  useEffect(() => {
+    const { unsubscribe, getMarker } = props.subscribeMarker({
       type: TimelineMarkerType.Today,
-      renderer: this.props.children,
-      interval: this.props.interval
+      renderer: props.children,
+      interval: props.interval,
     })
-    this.unsubscribe = unsubscribe
-    this.getMarker = getMarker
-  }
+    unsubscribeRef.current = unsubscribe
+    markerRef.current = getMarker
 
-  componentWillUnmount() {
-    if (this.unsubscribe != null) {
-      this.unsubscribe()
-      this.unsubscribe = null
+    return () => {
+      if (unsubscribeRef.current != null) {
+        unsubscribeRef.current()
+        unsubscribeRef.current = null
+      }
     }
-  }
+  }, [])
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.interval !== this.props.interval && this.getMarker) {
-      const marker = this.getMarker()
-      this.props.updateMarker({
+  useEffect(() => {
+    if (markerRef.current) {
+      const marker = markerRef.current()
+      props.updateMarker({
         ...marker,
-        interval: this.props.interval,
+        interval: props.interval,
       })
     }
-  }
+  }, [props.interval])
 
-  render() {
-    return null
-  }
+  return null
+}
+
+TodayMarker.propTypes = {
+  subscribeMarker: PropTypes.func.isRequired,
+  updateMarker: PropTypes.func.isRequired,
+  interval: PropTypes.number,
+  children: PropTypes.func,
+}
+
+TodayMarker.defaultProps = {
+  interval: 1000 * 10, // default to ten seconds
 }
 
 // TODO: turn into HOC?
-const TodayMarkerWrapper = props => {
+const TodayMarkerWrapper = (props) => {
   return (
     <TimelineMarkersConsumer>
       {({ subscribeMarker, updateMarker }) => (
-        <TodayMarker subscribeMarker={subscribeMarker} updateMarker={updateMarker} {...props} />
+        <TodayMarker
+          subscribeMarker={subscribeMarker}
+          updateMarker={updateMarker}
+          {...props}
+        />
       )}
     </TimelineMarkersConsumer>
   )

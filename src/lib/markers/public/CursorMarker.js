@@ -1,35 +1,36 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { TimelineMarkersConsumer } from '../TimelineMarkersContext'
 import { TimelineMarkerType } from '../markerType'
 
-class CursorMarker extends React.Component {
-  static propTypes = {
-    subscribeMarker: PropTypes.func.isRequired,
-    children: PropTypes.func
-  }
+function CursorMarker(props) {
+  const unsubscribeRef = useRef(null)
 
-  componentDidMount() {
-    const { unsubscribe } = this.props.subscribeMarker({
+  useEffect(() => {
+    const { unsubscribe } = props.subscribeMarker({
       type: TimelineMarkerType.Cursor,
-      renderer: this.props.children
+      renderer: props.children,
     })
-    this.unsubscribe = unsubscribe
-  }
+    unsubscribeRef.current = unsubscribe
 
-  componentWillUnmount() {
-    if (this.unsubscribe != null) {
-      this.unsubscribe()
-      this.unsubscribe = null
+    return () => {
+      if (unsubscribeRef.current != null) {
+        unsubscribeRef.current()
+        unsubscribeRef.current = null
+      }
     }
-  }
-  render() {
-    return null
-  }
+  }, [])
+
+  return null
+}
+
+CursorMarker.propTypes = {
+  subscribeMarker: PropTypes.func.isRequired,
+  children: PropTypes.func,
 }
 
 // TODO: turn into HOC?
-const CursorMarkerWrapper = props => {
+const CursorMarkerWrapper = (props) => {
   return (
     <TimelineMarkersConsumer>
       {({ subscribeMarker }) => (
