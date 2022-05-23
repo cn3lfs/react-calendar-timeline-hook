@@ -103,16 +103,16 @@ function App() {
     updateScrollCanvas
   ) => {
     if (visibleTimeStart < minTime && visibleTimeEnd > maxTime) {
-      console.log(1)
+      console.log('handleTimeChange 1')
       updateScrollCanvas(minTime, maxTime)
     } else if (visibleTimeStart < minTime) {
-      console.log(2)
+      console.log('handleTimeChange 2')
       updateScrollCanvas(minTime, minTime + (visibleTimeEnd - visibleTimeStart))
     } else if (visibleTimeEnd > maxTime) {
-      console.log(3)
+      console.log('handleTimeChange 3')
       updateScrollCanvas(maxTime - (visibleTimeEnd - visibleTimeStart), maxTime)
     } else {
-      console.log(4)
+      console.log('handleTimeChange 4')
       updateScrollCanvas(visibleTimeStart, visibleTimeEnd)
     }
   }

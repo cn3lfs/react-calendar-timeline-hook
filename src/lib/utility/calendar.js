@@ -728,6 +728,21 @@ export function calculateScrollCanvas(
       )
     )
   }
-  console.log(newState)
-  return newState
+  const obj = { ...state, ...newState }
+
+  printTime(obj)
+  return obj
+}
+
+function formatDateTime(time) {
+  return moment(time).format('YYYY-MM-DD HH:mm:ss')
+}
+
+function printTime(obj) {
+  console.log(`
+  visibleTimeStart: ${formatDateTime(obj.visibleTimeStart)}
+  visibleTimeEnd: ${formatDateTime(obj.visibleTimeEnd)}
+  canvasTimeStart: ${formatDateTime(obj.canvasTimeStart)}
+  canvasTimeEnd: ${formatDateTime(obj.canvasTimeEnd)}
+  `)
 }
