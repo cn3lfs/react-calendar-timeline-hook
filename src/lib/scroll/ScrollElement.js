@@ -1,14 +1,18 @@
 import React, { useRef, useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { getParentPosition } from '../utility/dom-helpers'
+import { throttle } from 'lodash-es'
 
 function ScrollElement(props) {
   const [isDragging, setIsDragging] = useState(false)
 
-  const [{ dragStartPosition, dragLastPosition }, setPosition] = useState({
+  const position = useRef({
     dragStartPosition: null,
     dragLastPosition: null,
   })
+  const setPosition = (pos) => {
+    position.current = pos
+  }
 
   const scrollComponentRef = useRef(null)
 
@@ -58,10 +62,12 @@ function ScrollElement(props) {
     //why is interacting with item important?
     if (isDragging && !props.isInteractingWithItem) {
       props.onScroll(
-        scrollComponentRef.current.scrollLeft + dragLastPosition - e.pageX
+        scrollComponentRef.current.scrollLeft +
+          position.current.dragLastPosition -
+          e.pageX
       )
       setPosition({
-        dragStartPosition,
+        dragStartPosition: position.current.dragStartPosition,
         dragLastPosition: e.pageX,
       })
     }
@@ -193,14 +199,24 @@ function ScrollElement(props) {
     }
   }, [])
 
-  const { width, height, children } = props
-
-  const scrollComponentStyle = {
-    width: `${width}px`,
-    height: `${height + 20}px`, //20px to push the scroll element down off screen...?
-    cursor: isDragging ? 'move' : 'default',
+  const [scrollComponentStyle, setScrollComponentStyle] = useState({
+    width: '1000px',
+    height: '920px', //20px to push the scroll element down off screen...?
+    cursor: 'default',
     position: 'relative',
-  }
+  })
+
+  useEffect(() => {
+    const { width, height } = props
+
+    const scrollComponentStyle = {
+      width: `${width}px`,
+      height: `${height + 20}px`, //20px to push the scroll element down off screen...?
+      cursor: isDragging ? 'move' : 'default',
+      position: 'relative',
+    }
+    setScrollComponentStyle(scrollComponentStyle)
+  }, [props.width, props.height, isDragging])
 
   return (
     <div
@@ -217,7 +233,7 @@ function ScrollElement(props) {
       onTouchEnd={handleTouchEnd}
       onScroll={handleScroll}
     >
-      {children}
+      {props.children}
     </div>
   )
 }

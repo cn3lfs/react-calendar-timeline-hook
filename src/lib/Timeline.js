@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types'
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import { flushSync } from 'react-dom'
 import { usePrevious } from 'react-use'
-
-import moment from 'moment'
+import { throttle, debounce } from 'lodash-es'
 
 import Items from './items/Items'
 import Sidebar from './layout/Sidebar'
@@ -10,8 +10,6 @@ import Columns from './columns/Columns'
 import GroupRows from './row/GroupRows'
 import ScrollElement from './scroll/ScrollElement'
 import MarkerCanvas from './markers/MarkerCanvas'
-import windowResizeDetector from '../resize-detector/window'
-import { debounce, throttle } from 'lodash-es'
 
 import {
   getMinUnit,
@@ -68,11 +66,16 @@ function ReactCalendarTimeline(props) {
       canvasTimeStart,
       canvasTimeEnd,
       selectedItem: null,
+
       dragTime: null,
+      draggingItem: null,
       dragGroupTitle: null,
+
       resizeTime: null,
       resizingItem: null,
       resizingEdge: null,
+
+      newGroupOrder: null,
 
       dimensionItems: null,
       height: null,
@@ -88,8 +91,8 @@ function ReactCalendarTimeline(props) {
         props.items,
         props.groups,
         canvasWidth,
-        initialState.canvasTimeStart,
-        initialState.canvasTimeEnd,
+        canvasTimeStart,
+        canvasTimeEnd,
         props.keys,
         props.lineHeight,
         props.itemHeightRatio,
@@ -105,8 +108,6 @@ function ReactCalendarTimeline(props) {
   })
 
   const prevState = usePrevious(state)
-
-  const timelineRef = useRef(null)
 
   const getTimelineContext = () => {
     const {
@@ -133,6 +134,8 @@ function ReactCalendarTimeline(props) {
       containerRef.current.getBoundingClientRect()
 
     let width = containerWidth - props.sidebarWidth - props.rightSidebarWidth
+    console.log(`resize update width to ${width}`)
+
     const canvasWidth = getCanvasWidth(width)
     const { dimensionItems, height, groupHeights, groupTops } =
       stackTimelineItems(
@@ -155,7 +158,6 @@ function ReactCalendarTimeline(props) {
 
     // this is needed by dragItem since it uses pageY from the drag events
     // if this was in the context of the scrollElement, this would not be necessary
-
     setState({
       ...state,
       width,
@@ -169,6 +171,8 @@ function ReactCalendarTimeline(props) {
     scrollHeaderRef.current.scrollLeft = width
   }
 
+  const debouncedResize = debounce(resize, 100)
+
   // called when the visible time changes
   const updateScrollCanvas = (
     visibleTimeStart,
@@ -177,6 +181,10 @@ function ReactCalendarTimeline(props) {
     items = props.items,
     groups = props.groups
   ) => {
+    // const { width: containerWidth } =
+    //   containerRef.current.getBoundingClientRect()
+    // let width = containerWidth - props.sidebarWidth - props.rightSidebarWidth
+
     const newState = calculateScrollCanvas(
       visibleTimeStart,
       visibleTimeEnd,
@@ -186,12 +194,13 @@ function ReactCalendarTimeline(props) {
       props,
       state
     )
-
-    setState(newState)
+    //FIXME:修复 width 不对
+    flushSync(() => {
+      setState(newState)
+    })
   }
 
   const onScroll = (scrollX) => {
-    console.log(scrollX)
     const width = state.width
 
     const canvasTimeStart = state.canvasTimeStart
@@ -653,23 +662,16 @@ function ReactCalendarTimeline(props) {
     scrollComponentRef.current = el
   }
 
+  const erdRef = useRef(null)
+
   useEffect(() => {
-    // resize()
-    // if (props.resizeDetector && props.resizeDetector.addListener) {
-    //   props.resizeDetector.addListener(timelineRef.current)
-    // }
-    // windowResizeDetector.addListener(timelineRef.current)
-    // return () => {
-    //   if (props.resizeDetector && props.resizeDetector.addListener) {
-    //     props.resizeDetector.removeListener(timelineRef.current)
-    //   }
-    //   windowResizeDetector.removeListener(timelineRef.current)
-    // }
+    resize()
 
     // 监听resize
-    window.addEventListener('resize', throttle(resize, 100))
+    window.addEventListener('resize', debouncedResize)
+
     return () => {
-      window.removeEventListener('resize', throttle(resize, 100))
+      window.removeEventListener('resize', debouncedResize)
     }
   }, [])
 
@@ -711,7 +713,7 @@ function ReactCalendarTimeline(props) {
     }
   })
 
-  const deriveState = (nextProps, prevState) => {
+  const getDerivedStateFromProps = (nextProps, prevState) => {
     const { visibleTimeStart, visibleTimeEnd, items, groups } = nextProps
 
     // This is a gross hack pushing items and groups in to state only to allow

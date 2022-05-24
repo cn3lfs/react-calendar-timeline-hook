@@ -682,7 +682,10 @@ export function calculateScrollCanvas(
   const oldCanvasTimeStart = state.canvasTimeStart
   const oldZoom = state.visibleTimeEnd - state.visibleTimeStart
   const newZoom = visibleTimeEnd - visibleTimeStart
-  const newState = { visibleTimeStart, visibleTimeEnd }
+  const newState = {
+    visibleTimeStart,
+    visibleTimeEnd,
+  }
 
   // Check if the current canvas covers the new times
   const canKeepCanvas =
@@ -699,12 +702,8 @@ export function calculateScrollCanvas(
     )
     newState.canvasTimeStart = canvasTimeStart
     newState.canvasTimeEnd = canvasTimeEnd
-    const mergedState = {
-      ...state,
-      ...newState,
-    }
 
-    const canvasWidth = getCanvasWidth(mergedState.width)
+    const canvasWidth = getCanvasWidth(state.width)
 
     // The canvas cannot be kept, so calculate the new items position
     Object.assign(
@@ -713,18 +712,18 @@ export function calculateScrollCanvas(
         items,
         groups,
         canvasWidth,
-        mergedState.canvasTimeStart,
-        mergedState.canvasTimeEnd,
+        state.canvasTimeStart,
+        state.canvasTimeEnd,
         props.keys,
         props.lineHeight,
         props.itemHeightRatio,
         props.stackItems,
-        mergedState.draggingItem,
-        mergedState.resizingItem,
-        mergedState.dragTime,
-        mergedState.resizingEdge,
-        mergedState.resizeTime,
-        mergedState.newGroupOrder
+        state.draggingItem,
+        state.resizingItem,
+        state.dragTime,
+        state.resizingEdge,
+        state.resizeTime,
+        state.newGroupOrder
       )
     )
   }
