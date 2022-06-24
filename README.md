@@ -614,7 +614,7 @@ import Timeline, {
       {({ styles, date }) => {
         const customStyles = {
           ...styles,
-          backgroundColor: 'deeppink',
+          background: 'deeppink',
           width: '4px'
         }
         return <div style={customStyles} onClick={someCustomHandler} />
@@ -663,7 +663,7 @@ const twoSeconds = 2000
   {({ styles, date }) =>
     // date is value of current date. Use this to render special styles for the marker
     // or any other custom logic based on date:
-    // e.g. styles = {...styles, backgroundColor: isDateInAfternoon(date) ? 'red' : 'limegreen'}
+    // e.g. styles = {...styles, background: isDateInAfternoon(date) ? 'red' : 'limegreen'}
     <div style={styles} />
   }
 </TodayMarker>
@@ -719,7 +719,7 @@ Custom renderer for this marker. Ensure that you always pass `styles` to the roo
   {({ styles, date }) =>
     // date is value of current date. Use this to render special styles for the marker
     // or any other custom logic based on date:
-    // e.g. styles = {...styles, backgroundColor: isDateInAfternoon(date) ? 'red' : 'limegreen'}
+    // e.g. styles = {...styles, background: isDateInAfternoon(date) ? 'red' : 'limegreen'}
     <div style={styles} />
   }
 </CursorMarker>
@@ -933,7 +933,7 @@ by default we provide a responsive format for the dates based on the label width
     mediumLong: 'mm:ss',
     medium: 'mm:ss',
     "short": 'ss'
-  }  
+  }
 }
   ```
 
@@ -1149,7 +1149,7 @@ import Timeline, {
                 textAlign: 'center',
                 borderLeft: '1px solid black',
                 cursor: 'pointer',
-                backgroundColor: 'Turquoise',
+                background: 'Turquoise',
                 color: 'white'
               }
               return (

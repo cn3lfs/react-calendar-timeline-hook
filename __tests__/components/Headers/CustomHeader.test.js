@@ -308,7 +308,7 @@ describe('CustomHeader Component Test', () => {
                       textAlign: 'center',
                       borderLeft: '1px solid black',
                       cursor: 'pointer',
-                      backgroundColor: 'Turquoise',
+                      background: 'Turquoise',
                       color: 'white'
                     }
                     return (

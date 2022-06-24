@@ -202,7 +202,7 @@ export default class App extends Component {
               .valueOf()}
           >
             {({ styles }) => {
-              const newStyles = { ...styles, backgroundColor: 'blue' }
+              const newStyles = { ...styles, background: 'blue' }
               return <div style={newStyles} />
             }}
           </CustomMarker>

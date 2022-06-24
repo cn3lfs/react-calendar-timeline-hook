@@ -8,7 +8,7 @@ const criticalStyles = {
   top: 0,
   bottom: 0,
   width: '2px',
-  backgroundColor: 'black',
+  background: 'black',
   // by default, pointer events (specifically click) will
   // "pass through".  This is added so that CursorMarker
   // will not get in the way of canvas click

@@ -209,7 +209,7 @@ export default class App extends Component {
                   showPeriod,
                   data,
                 },
-                
+
               ) => {
                 console.log('props', data)
                 return (
@@ -220,7 +220,7 @@ export default class App extends Component {
                         textAlign: 'center',
                         borderLeft: '1px solid black',
                         cursor: 'pointer',
-                        backgroundColor: 'Turquoise',
+                        background: 'Turquoise',
                         color: 'white'
                       }
                       return (
@@ -258,7 +258,7 @@ export default class App extends Component {
                         textAlign: 'center',
                         borderLeft: '1px solid black',
                         cursor: 'pointer',
-                        backgroundColor: 'indianred',
+                        background: 'indianred',
                         color: 'white'
                       }
                       return (
@@ -322,7 +322,7 @@ export default class App extends Component {
               headerData={{ hey: 'date header' }}
               intervalRenderer={(
                 { getIntervalProps, intervalContext, data },
-                
+
               ) => {
                 console.log('intervalRenderer props', data)
                 return (
@@ -358,7 +358,7 @@ export default class App extends Component {
                 .valueOf()}
             >
               {({ styles }) => {
-                const newStyles = { ...styles, backgroundColor: 'blue' }
+                const newStyles = { ...styles, background: 'blue' }
                 return <div style={newStyles} />
               }}
             </CustomMarker>

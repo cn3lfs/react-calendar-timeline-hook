@@ -10,7 +10,7 @@ export default function CustomInfoLabel(props) {
         position: 'fixed',
         bottom: '100px',
         left: '100px',
-        backgroundColor: '#E3F1DF',
+        background: '#E3F1DF',
         color: '#212B36',
         padding: '6px 12px',
         fontSize: '16px',

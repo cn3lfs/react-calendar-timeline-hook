@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 import React, { Component } from 'react'
 import moment from 'moment'
+import "moment/locale/zh-cn";
+moment.locale("zh-cn");
 
 import Timeline, {
   TimelineMarkers,
@@ -194,7 +196,7 @@ export default class App extends Component {
               .valueOf()}
           >
             {({ styles }) => {
-              const newStyles = { ...styles, backgroundColor: 'blue' }
+              const newStyles = { ...styles, background: 'blue' }
               return <div style={newStyles} />
             }}
           </CustomMarker>
