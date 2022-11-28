@@ -50,7 +50,7 @@ class ScrollElement extends Component {
       const parentPosition = getParentPosition(e.currentTarget)
       const xPosition = e.clientX - parentPosition.x
 
-      const speed = e.altKey ? 10 : e.metaKey ? 3 : 1
+      const speed = e.altKey ? 3 : e.metaKey ? 3 : 1
 
       // convert vertical zoom to horiziontal
       this.props.onWheelZoom(speed, xPosition, e.deltaY)
