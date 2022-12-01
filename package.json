@@ -1,6 +1,6 @@
 {
   "name": "@cn3lfs/react-calendar-timeline",
-  "version": "0.28.2",
+  "version": "0.28.3",
   "description": "react calendar timeline",
   "main": "lib/index.js",
   "scripts": {
